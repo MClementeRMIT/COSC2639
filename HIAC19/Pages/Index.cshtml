@@ -5,7 +5,7 @@
 }
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD3H1OihU_cJrmr8g6xKG6MYaviYY-lhLA&callback=initMap" async defer></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=<MAP_KEY>&callback=initMap" async defer></script>
 <script type="text/javascript" >
 
 let lat;
@@ -27,7 +27,7 @@ let lng;
             },
             zoom: 15
         });
-    
+
         var marker = new google.maps.Marker({
             position: {
                 lat: lat,
@@ -35,7 +35,7 @@ let lng;
             },
             map: map,
             draggable: false
-        });      
+        });
 
         setLat();
         setLng();
@@ -51,22 +51,22 @@ let lng;
           timeout: 10000,
           maximumAge: 0
         };
-        
+
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(initMap, error, options);
-        } else { 
+        } else {
             x.innerHTML = "Geolocation is not supported by this browser.";
         }
     }
 
-    function setLat() { 
+    function setLat() {
         var latInput = document.getElementById("LatInput");
         latInput.setAttribute('value', lat);
     }
 
     function setLng() {
         var lngInput = document.getElementById("LngInput");
-        lngInput.setAttribute('value', lng);    
+        lngInput.setAttribute('value', lng);
     }
 
     function uuidv4() {
@@ -74,7 +74,7 @@ let lng;
     }
 
     function setupId() {
-        
+
         let id;
         id = localStorage.getItem('id');
         if (id == null) {
@@ -91,14 +91,14 @@ let lng;
         id3.setAttribute('value', id);
     }
 
-    function hideReg() { 
+    function hideReg() {
         let rn = localStorage.getItem('registered');
         if (rn == null) {
             var fd = document.getElementById("regAlready");
             fd.style.display = "none";
             var fd2 = document.getElementById("regForm");
             fd2.style.display = "block";
-        } else { 
+        } else {
             var ft = document.getElementById("regAlreadyMsg");
             ft.innerHTML = "You have already registered number " + rn + ".";
             var fd = document.getElementById("regAlready");
@@ -114,7 +114,7 @@ let lng;
         start();
     }
 
-    function submitRegistration() {    
+    function submitRegistration() {
         localStorage.setItem('registered', document.getElementById('pn').value);
         document.forms["regForm"].submit();
     }
@@ -138,11 +138,11 @@ window.addEventListener("load", setupAfterLoad);
 <div>
     @if (Model.Submitted)
     {
-        <p id="submitMsg">You have checked in at @Model.SubmittedCoordinates.</p>        
+        <p id="submitMsg">You have checked in at @Model.SubmittedCoordinates.</p>
     }
 </div>
 
-<br /><br />      
+<br /><br />
 <div id="regForm">
     <form asp-page-handler="Registration" name="regForm" method="post">
         <label for="PhoneNumer">Phone number</label>
