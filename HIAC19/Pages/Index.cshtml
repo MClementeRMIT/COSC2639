@@ -1,0 +1,162 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Here I Am - COVID19 tracker";
+}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD3H1OihU_cJrmr8g6xKG6MYaviYY-lhLA&callback=initMap" async defer></script>
+<script type="text/javascript" >
+
+let lat;
+let lng;
+
+    function initMap(position) {
+
+        if (position == null || position.coords == null)
+            return;
+
+        var crd = position.coords;
+        lat = crd.latitude;
+        lng = crd.longitude;
+
+        var map = new google.maps.Map(document.getElementById('dvMap'), {
+            center: {
+                lat: lat,
+                lng: lng
+            },
+            zoom: 15
+        });
+    
+        var marker = new google.maps.Marker({
+            position: {
+                lat: lat,
+                lng: lng
+            },
+            map: map,
+            draggable: false
+        });      
+
+        setLat();
+        setLng();
+    }
+
+    function error(err) {
+        console.warn('ERROR(' + err.code + '): ' + err.message);
+    }
+
+    function start() {
+        options = {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        };
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(initMap, error, options);
+        } else { 
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+
+    function setLat() { 
+        var latInput = document.getElementById("LatInput");
+        latInput.setAttribute('value', lat);
+    }
+
+    function setLng() {
+        var lngInput = document.getElementById("LngInput");
+        lngInput.setAttribute('value', lng);    
+    }
+
+    function uuidv4() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+    }
+
+    function setupId() {
+        
+        let id;
+        id = localStorage.getItem('id');
+        if (id == null) {
+            newId = uuidv4();
+            localStorage.setItem('id', newId);
+            id = newId;
+        }
+
+        var id1 = document.getElementById("id1");
+        id1.setAttribute('value', id);
+        var id2 = document.getElementById("id2");
+        id2.setAttribute('value', id);
+        var id3 = document.getElementById("id3");
+        id3.setAttribute('value', id);
+    }
+
+    function hideReg() { 
+        let rn = localStorage.getItem('registered');
+        if (rn == null) {
+            var fd = document.getElementById("regAlready");
+            fd.style.display = "none";
+            var fd2 = document.getElementById("regForm");
+            fd2.style.display = "block";
+        } else { 
+            var ft = document.getElementById("regAlreadyMsg");
+            ft.innerHTML = "You have already registered number " + rn + ".";
+            var fd = document.getElementById("regAlready");
+            fd.style.display = "block";
+            var fd2 = document.getElementById("regForm");
+            fd2.style.display = "none";
+        }
+    }
+
+    function setupAfterLoad() {
+        setupId();
+        hideReg();
+        start();
+    }
+
+    function submitRegistration() {    
+        localStorage.setItem('registered', document.getElementById('pn').value);
+        document.forms["regForm"].submit();
+    }
+
+
+window.addEventListener("load", setupAfterLoad);
+</script>
+
+<h1>Welcome to COVID-19 tracker</h1>
+<p>Please click on the check-in button when you are ready.</p>
+<br /><br />
+<div id="dvMap" style="height:300px; width:70%"></div>
+<br /><br />
+
+<form asp-page-handler="Submit" name="submitForm" method="post">
+    <input type="hidden" name="LatInput" id="LatInput" value="" />
+    <input type="hidden" name="LngInput" id="LngInput" value="" />
+    <input type="hidden" name="id" id="id1" value="" />
+    <input type="submit" value="Check-in" />
+</form>
+<div>
+    @if (Model.Submitted)
+    {
+        <p id="submitMsg">You have checked in at @Model.SubmittedCoordinates.</p>        
+    }
+</div>
+
+<br /><br />      
+<div id="regForm">
+    <form asp-page-handler="Registration" name="regForm" method="post">
+        <label for="PhoneNumer">Phone number</label>
+        <input type="text" name="PhoneNumber" id="pn"/>
+        <input type="hidden" name="id" id="id2" value=""/>
+        <input type="submit" onclick="submitRegistration();" />
+    </form>
+</div>
+<div id="regAlready">
+    <p id="regAlreadyMsg"></p>
+</div>
+
+<br /><br />
+<form asp-page-handler="PositiveRegistration" method="post">
+    <input type="hidden" name="id" id="id3" value="" />
+    <input type="submit" value="Positive COVID-19 Results" />
+</form>
